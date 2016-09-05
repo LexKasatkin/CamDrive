@@ -123,7 +123,7 @@ public class CamerasActivity extends AppCompatActivity {
                 }
 
             }
-        }, 0, 20000);
+        }, 0, 2000);
     }
 
     private void showProgressDialog(boolean visible) {
