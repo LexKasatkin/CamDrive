@@ -20,6 +20,7 @@ public class CamerasActivity extends AppCompatActivity {
 
     ProgressDialog progressDialog;
     ArrayList<Camera> arrayListCams;
+    Camera camera;
     SharedPreferences sPref;
     public String MY_PREF = "MY_PREF";
     DataAuthentication dataAuthentication;
@@ -50,6 +51,7 @@ public class CamerasActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(final String success) {
+            arrayListCams=new ArrayList<Camera>();
             if(success!=null){
                 try {
                     JSONObject jsonObject=new JSONObject(success);
@@ -59,7 +61,29 @@ public class CamerasActivity extends AppCompatActivity {
                                 JSONObject jsonObjectData=jsonObject.getJSONObject("data");
                                 if(jsonObjectData.has("cameras")){
                                     JSONArray jsonArrayCameras=jsonObjectData.getJSONArray("cameras");
-                                    for(int i)
+                                    for(int i=0;i<jsonArrayCameras.length();i++){
+                                        camera=new Camera();
+                                        JSONObject JSONObjectCamera=jsonArrayCameras.getJSONObject(i);
+                                        if(JSONObjectCamera.has("camera_channel_id")){
+                                            camera.setCamera_channel_id(JSONObjectCamera.getString("camera_channel_id"));
+                                        }
+                                        if(JSONObjectCamera.has("camera_name")){
+                                            camera.setCamera_name(JSONObjectCamera.getString("camera_name"));
+                                        }
+                                        if(JSONObjectCamera.has("camera_connected_server")){
+                                            camera.setCamera_connected_server(JSONObjectCamera.getString("camera_connected_server"));
+                                        }
+                                        if(JSONObjectCamera.has("preview_url")){
+                                            camera.setPreview_url(JSONObjectCamera.getString("preview_url"));
+                                        }
+                                        if(JSONObjectCamera.has("stream_url")){
+                                            camera.setStream_url(JSONObjectCamera.getString("stream_url"));
+                                        }
+                                        if(JSONObjectCamera.has("archive")){
+                                            camera.setArchive(JSONObjectCamera.getString("archive"));
+                                        }
+                                        arrayListCams.add(camera);
+                                    }
                                 }
                             }
                         }else if(jsonObject.getString("status").equals("0")){
