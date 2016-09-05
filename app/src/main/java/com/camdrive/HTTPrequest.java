@@ -59,7 +59,8 @@ public class HTTPrequest {
         nameValuePairs.add(new BasicNameValuePair("passw", dataAuthentication.getmPassword()));
         //            httpGetJson.(new UrlEncodedFormEntity(nameValuePairs));
         try {
-//            httpGetJson.setHeader("Cookie","sessionid=" + dataAuthentication.getSessionID());
+            httpGetJson.setHeader("Cookie","session=" + dataAuthentication.getSessionID()+"; "+
+            "remember_code="+dataAuthentication.remember_code+"; "+"identity="+dataAuthentication.identity);
             httpGetJson.setHeader("Host", "demo.officer24.ru");
             httpGetJson.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             httpGetJson.setHeader("Accept-Language", "ru-RU,en;q=0.5");

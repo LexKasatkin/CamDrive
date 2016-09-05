@@ -6,6 +6,11 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -29,7 +34,7 @@ public class CamerasActivity extends AppCompatActivity {
 
     }
 
-    class CamerasTask extends AsyncTask<Void, Void, ArrayList<Camera>> {
+    class CamerasTask extends AsyncTask<Void, Void, String> {
 
         @Override
         protected void onPreExecute() {
@@ -38,11 +43,40 @@ public class CamerasActivity extends AppCompatActivity {
         }
 
         @Override
-        protected ArrayList<Camera> doInBackground(Void... params) {
-            arrayListCams = new ArrayList<Camera>();
+        protected String doInBackground(Void... params) {
             HTTPrequest httPrequest=new HTTPrequest(dataAuthentication, urlCam,sPref);
             String jsonString=httPrequest.getJSONString();
-            return arrayListCams;
+            return jsonString;
+        }
+        @Override
+        protected void onPostExecute(final String success) {
+            if(success!=null){
+                try {
+                    JSONObject jsonObject=new JSONObject(success);
+                    if(jsonObject.has("status")){
+                        if(jsonObject.getString("status").equals("1")){
+                            if(jsonObject.has("data")){
+                                JSONObject jsonObjectData=jsonObject.getJSONObject("data");
+                                if(jsonObjectData.has("cameras")){
+                                    JSONArray jsonArrayCameras=jsonObjectData.getJSONArray("cameras");
+                                    for(int i)
+                                }
+                            }
+                        }else if(jsonObject.getString("status").equals("0")){
+                            Toast toast = Toast.makeText(CamerasActivity.this, "Ошибка запроса списка камер", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }else if(jsonObject.getString("status").equals("2")){
+                            Toast toast = Toast.makeText(CamerasActivity.this, "Не авторизованный запрос" +
+                                    ", необходимо авторизоваться", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
         }
     }
 
@@ -65,7 +99,7 @@ public class CamerasActivity extends AppCompatActivity {
                 }
 
             }
-        }, 0, 5000);
+        }, 0, 20000);
     }
 
     private void showProgressDialog(boolean visible) {
