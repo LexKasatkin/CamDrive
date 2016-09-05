@@ -25,7 +25,6 @@ public class CamerasActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cameras);
         sPref = this.getSharedPreferences(MY_PREF, Activity.MODE_PRIVATE);
         dataAuthentication=new DataAuthentication();
-        dataAuthentication.loadDataAuthentication(sPref);
         doSomethingRepeatedly();
 
     }
@@ -54,6 +53,7 @@ public class CamerasActivity extends AppCompatActivity {
 
                 try{
                     if (NetworkManager.isNetworkAvailable(getApplicationContext())) {
+                        dataAuthentication.loadDataAuthentication(sPref);
                         new CamerasTask().execute();
                     }
                     else{
