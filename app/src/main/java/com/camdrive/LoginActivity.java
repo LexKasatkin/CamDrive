@@ -73,8 +73,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
+        getSupportActionBar().setTitle("Вход");
         sPref = this.getSharedPreferences(MY_PREF, Activity.MODE_PRIVATE);
         dataAuthentication=new DataAuthentication();
+        dataAuthentication.loadDataAuthentication(sPref);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -316,7 +318,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //            urlAuth=urlAuth+mEmail;
 //            urlAuth=urlAuth+"&password=";
 //            urlAuth=urlAuth+mPassword;
-
             dataAuthentication.setmMail(mEmail);
             dataAuthentication.setmPassword(mPassword);
             dataAuthentication.setSessionID(session);
