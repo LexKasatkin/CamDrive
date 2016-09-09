@@ -6,9 +6,9 @@
     android:orientation="vertical" >
 
 
-    <DatePicker
+    <com.squareup.timessquare.CalendarPickerView
+        android:id="@+id/calendar_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/datePicker"
-        android:layout_gravity="right" />
+        />
 </LinearLayout>

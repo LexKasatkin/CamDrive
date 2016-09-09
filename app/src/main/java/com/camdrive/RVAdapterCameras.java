@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +18,9 @@ import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.roomorama.caldroid.CaldroidFragment;
+import com.squareup.timessquare.CalendarPickerView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -185,8 +190,7 @@ class RVAdapterCameras extends RecyclerView.Adapter<RVAdapterCameras.ContractsVi
             }
             Dialog dialog=new Dialog(ctx);
             dialog.setContentView(R.layout.calendar_dialog);
-            DatePicker datePicker = (DatePicker) dialog.findViewById(R.id.datePicker);
-
+            CalendarPickerView calendarView = (CalendarPickerView) dialog.findViewById(R.id.calendar_view);
             for(int i=0;i<daysArray.size();i++) {
                 String parts[] = daysArray.get(i).id.split("-");
 
@@ -198,14 +202,13 @@ class RVAdapterCameras extends RecyclerView.Adapter<RVAdapterCameras.ContractsVi
                 calendar.set(Calendar.YEAR, year);
                 calendar.set(Calendar.MONTH, month-1);
                 calendar.set(Calendar.DAY_OF_MONTH, day);
-
+                Date date=new Date(calendar.getTimeInMillis());
+                calendarView.init(date, date);
                 long milliTime = calendar.getTimeInMillis();
                 if(i==0){
-                    datePicker.setMinDate(milliTime);
-                    datePicker.updateDate(year,month-1,day);
+
                 }
                 if(i==daysArray.size()-1) {
-                    datePicker.setMaxDate(milliTime);
                 }
 //                CalendarView calendarView=datePicker.getCalendarView();
 //                calendarView.setDate(milliTime);
