@@ -108,6 +108,7 @@ public class CamerasActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                showProgressDialog(false);
             }
 
             RVAdapterCameras rvAdapterCameras=new RVAdapterCameras(arrayListCams);
@@ -133,6 +134,8 @@ public class CamerasActivity extends AppCompatActivity {
                         camerasTask.execute();
                     }
                     else{
+                        Toast toast = Toast.makeText(CamerasActivity.this, "Проверьте соединение", Toast.LENGTH_SHORT);
+                        toast.show();
                     }
 
                 }
@@ -179,11 +182,13 @@ public class CamerasActivity extends AppCompatActivity {
                 this.finish();
                 return true;
             case R.id.logout:
-                LogoutTask logoutTask=new LogoutTask();
-                logoutTask.execute();
-                camerasTask.cancel(true);
-                timer.cancel();
-                finish();
+                if (NetworkManager.isNetworkAvailable(this)) {
+                    LogoutTask logoutTask = new LogoutTask();
+                    logoutTask.execute();
+                }else{
+                    Toast toast = Toast.makeText(CamerasActivity.this, "Проверьте соединение", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -200,9 +205,13 @@ public class CamerasActivity extends AppCompatActivity {
     @Override
     public void onBackPressed()
     {
-        finish();
-        camerasTask.cancel(true);
-        timer.cancel();
+        if (NetworkManager.isNetworkAvailable(this)) {
+            LogoutTask logoutTask = new LogoutTask();
+            logoutTask.execute();
+        }else{
+            Toast toast = Toast.makeText(CamerasActivity.this, "Проверьте соединение", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 
     @Override
@@ -227,16 +236,22 @@ public class CamerasActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "MainActivity: onStop()");
-        camerasTask.cancel(true);
-        timer.cancel();
+        if(camerasTask!=null){
+        camerasTask.cancel(true);}
+        if(timer!=null) {
+            timer.cancel();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "MainActivity: onDestroy()");
-        camerasTask.cancel(true);
-        timer.cancel();
+        if(camerasTask!=null){
+            camerasTask.cancel(true);}
+        if(timer!=null) {
+            timer.cancel();
+        }
     }
 
     class LogoutTask extends AsyncTask<Void, Void, String> {
@@ -256,6 +271,25 @@ public class CamerasActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final String success) {
+            showProgressDialog(false);
+            try {
+                JSONObject jsonObject=new JSONObject(success);
+                if(jsonObject.has("status")){
+                    if(jsonObject.getString("status").equals("1")){
+                        camerasTask.cancel(true);
+                        timer.cancel();
+                        finish();
+                    } else {
+                        Toast toast = Toast.makeText(CamerasActivity.this, "Ошибка выполенения запроса", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
         }
     }
+
 }
