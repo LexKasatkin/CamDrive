@@ -2,6 +2,7 @@ package com.camdrive;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,8 +15,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,9 +45,14 @@ class RVAdapterCameras extends RecyclerView.Adapter<RVAdapterCameras.ContractsVi
     DataAuthentication dataAuthentication;
     String urlDates="http://95.170.177.173/mobile/api_native/calendar/?camera_channel_id=";
     ArrayList<Day>daysArray;
+    Dialog dialog;
+    RadioButton rb;
+    RadioGroup rg;
+    ProgressDialog progressDialog;
+    int sdvig;
     public static class ContractsViewHolder extends RecyclerView.ViewHolder {
-        Context ctx;
         CardView cv;
+        Context ctx;
         TextView contractName;
         TextView contractType;
         TextView contractStatusName;
@@ -56,7 +66,7 @@ class RVAdapterCameras extends RecyclerView.Adapter<RVAdapterCameras.ContractsVi
             contractType = (TextView)itemView.findViewById(R.id.tvContractName);
             contractDate=(TextView)itemView.findViewById(R.id.tvContractID);
             contractStatusName=(TextView)itemView.findViewById(R.id.tvContractStatusName);
-             ctx=itemView.getContext();
+            ctx=itemView.getContext();
             contractID.setTextColor(Color.WHITE);
             contractName.setTextColor(ctx.getResources().getColor(R.color.colorPrimaryText));
             contractStatusName.setTextColor(ctx.getResources().getColor(R.color.colorPrimaryText));
@@ -116,11 +126,67 @@ class RVAdapterCameras extends RecyclerView.Adapter<RVAdapterCameras.ContractsVi
         personViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String id=personViewHolder.contractID.getText().toString();
-                Context context = v.getContext();
-                urlDates=urlDates+id+"&position=";
-                        DatesTask datesTask=new DatesTask(context);
-                datesTask.execute();
+                final String id=personViewHolder.contractID.getText().toString();
+                final Context context = v.getContext();
+                ArrayList<String> years=new ArrayList<String>();
+                years.add("2014");
+                years.add("2015");
+                years.add("2016");
+                years.add("2017");
+                showRadioButtonDialog(years, context);
+                rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        if (dialog.findViewById(rg.getCheckedRadioButtonId()) != null) {
+
+                            int j = rg.indexOfChild(dialog.findViewById(rg.getCheckedRadioButtonId()));
+                            if(j==0){
+                                sdvig=-24;
+                            }else if(j==1){
+                                sdvig=-12;
+                            }else if(j==2){
+                                sdvig=0;
+                            }else if(j==3){
+                                sdvig=12;
+                            }
+                            dialog.dismiss();
+                            ArrayList<String> months=new ArrayList<String>();
+                            months.add("Jan");
+                            months.add("Feb");
+                            months.add("Mar");
+                            months.add("Apr");
+                            months.add("May");
+                            months.add("Jun");
+                            months.add("Jul");
+                            months.add("Aug");
+                            months.add("Sep");
+                            months.add("Oct");
+                            months.add("Nov");
+                            months.add("Dec");
+                            showRadioButtonDialog(months, context);
+                            rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                                @Override
+                                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                                    if (dialog.findViewById(rg.getCheckedRadioButtonId()) != null) {
+                                        int i = rg.indexOfChild(dialog.findViewById(rg.getCheckedRadioButtonId()));
+                                        Calendar cal = Calendar.getInstance();
+                                        int month = cal.get(Calendar.MONTH);
+                                        urlDates=urlDates+id+"&position="+String.valueOf(i-month+sdvig);
+                                        DatesTask datesTask=new DatesTask(context);
+                                        datesTask.execute();
+                                        dialog.dismiss();
+                                    } else {
+                                        dialog.dismiss();
+                                    }
+                                }
+                            });
+                        }else{
+                            dialog.dismiss();
+                        }
+                    }});
+
+
+
             }
         });
     }
@@ -141,6 +207,7 @@ class RVAdapterCameras extends RecyclerView.Adapter<RVAdapterCameras.ContractsVi
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            showProgressDialog(true, ctx);
             sPref = ctx.getSharedPreferences(MY_PREF, Activity.MODE_PRIVATE);
             dataAuthentication=new DataAuthentication();
             dataAuthentication.loadDataAuthentication(sPref);
@@ -188,50 +255,89 @@ class RVAdapterCameras extends RecyclerView.Adapter<RVAdapterCameras.ContractsVi
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Dialog dialog=new Dialog(ctx);
-            dialog.setContentView(R.layout.calendar_dialog);
-            CalendarPickerView calendarView = (CalendarPickerView) dialog.findViewById(R.id.calendar_view);
+            Date date;
+            CalendarPickerView calendar1;
+            Dialog dialogDays=new Dialog(ctx);
+            dialogDays.setContentView(R.layout.calendar_dialog);
+            calendar1 = (CalendarPickerView) dialogDays.findViewById(R.id.calendar_view);
+            boolean j=false;
             for(int i=0;i<daysArray.size();i++) {
-                String parts[] = daysArray.get(i).id.split("-");
+                if (daysArray.get(i).records) {
+                    String parts[] = daysArray.get(i).id.split("-");
+                    int day = Integer.parseInt(parts[2]);
+                    int month = Integer.parseInt(parts[1]);
+                    int year = Integer.parseInt(parts[0]);
 
-                int day = Integer.parseInt(parts[2]);
-                int month = Integer.parseInt(parts[1]);
-                int year = Integer.parseInt(parts[0]);
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month-1);
-                calendar.set(Calendar.DAY_OF_MONTH, day);
-                Date date=new Date(calendar.getTimeInMillis());
-                calendarView.init(date, date);
-                long milliTime = calendar.getTimeInMillis();
-                if(i==0){
-
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month - 1);
+                    calendar.set(Calendar.DAY_OF_MONTH, day);
+                    date = new Date(calendar.getTimeInMillis());
+                    if(j==false) {
+                        Calendar nextYear = Calendar.getInstance();
+                        nextYear.add(Calendar.YEAR, 1);
+                        calendar1.init(date, nextYear.getTime())
+                                .inMode(CalendarPickerView.SelectionMode.MULTIPLE);
+                        j=true;
+                    }
+                    calendar1.selectDate(date);
                 }
-                if(i==daysArray.size()-1) {
-                }
-//                CalendarView calendarView=datePicker.getCalendarView();
-//                calendarView.setDate(milliTime);
             }
-//            calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-//
-//                @Override
-//                public void onSelectedDayChange(CalendarView view, int year,
-//                                                int month, int dayOfMonth) {
-//                    int mYear = year;
-//                    int mMonth = month;
-//                    int mDay = dayOfMonth;
-//                    String selectedDate = new StringBuilder().append(mMonth + 1)
-//                            .append("-").append(mDay).append("-").append(mYear)
-//                            .append(" ").toString();
-//                    Toast.makeText(ctx.getApplicationContext(), selectedDate, Toast.LENGTH_LONG).show();
-//
-//                }
-//            });
-            dialog.show();
+           if(j) {
+                dialogDays.show();
+            }else{
+               Toast toast = Toast.makeText(ctx, "У камеры нет архива", Toast.LENGTH_SHORT);
+               toast.show();
+           }
+            showProgressDialog(false, ctx);
+
         }
     }
-    public void showDialogCalendar(){
 
+    private void showRadioButtonDialog(ArrayList<String> arrayList, Context ctx) {
+        dialog = new Dialog(ctx);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.activity_month);
+//        ivSearchOK=(ImageView)dialog.findViewById(R.id.ivSearchOK);
+
+        ArrayList<String> stringList=new ArrayList<>();  // here is list
+
+        rg = (RadioGroup) dialog.findViewById(R.id.radio_group);
+        for(int i=0;i<arrayList.size();i++){
+            rb=new RadioButton(ctx); // dynamically creating RadioButton and adding to RadioGroup.
+//            rb.setButtonTintList(ColorStateList.valueOf(R.color.colorAccent));
+//            rb.setHighlightColor(R.color.colorAccent);
+            rb.setText(arrayList.get(i).toString());
+            rg.addView(rb);
+        }
+
+        dialog.show();
+    }
+
+
+    private void showProgressDialog(boolean visible, Context cont) {
+        if (visible) {
+            if (progressDialog == null || !progressDialog.isShowing()) {
+                try {
+                    progressDialog = new ProgressDialog(cont, R.style.MyTheme);
+                    progressDialog.setProgress(R.drawable.circular_progress_bar);
+                    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            try {
+                if (progressDialog != null && progressDialog.isShowing())
+                    progressDialog.dismiss();
+                progressDialog = null;
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
