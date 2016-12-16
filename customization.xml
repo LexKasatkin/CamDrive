@@ -1,39 +1,10 @@
 <application>
   <component name="com.intellij.ide.ui.customization.CustomActionsSchema">
-    <group value="Vcs.Push" is_action="true" action_type="-1" position="9">
-      <path value="root" />
-      <path value="Commander View Popup Menu" />
-      <path value="VCS/LVCS Actions" />
-      <path value="Version Control Group" />
-      <path value="Repository" />
-      <path value="GitRepositoryActions" />
-      <option name="myInitialPosition" value="-1" />
-    </group>
-    <group value="Git.Pull" is_action="true" action_type="-1" position="8">
-      <path value="root" />
-      <path value="Commander View Popup Menu" />
-      <path value="VCS/LVCS Actions" />
-      <path value="Version Control Group" />
-      <path value="Repository" />
-      <path value="GitRepositoryActions" />
-      <option name="myInitialPosition" value="-1" />
-    </group>
     <group value="Git.Pull" is_action="true" action_type="1" position="0">
       <path value="root" />
       <path value="Commander View Popup Menu" />
       <path value="VCS/LVCS Actions" />
       <path value="Version Control Group" />
-      <path value="Repository" />
-      <path value="GitRepositoryActions" />
-      <option name="myInitialPosition" value="-1" />
-    </group>
-    <group value="Vcs.Push" is_action="true" action_type="1" position="1">
-      <path value="root" />
-      <path value="Commander View Popup Menu" />
-      <path value="VCS/LVCS Actions" />
-      <path value="Version Control Group" />
-      <path value="Repository" />
-      <path value="GitRepositoryActions" />
       <option name="myInitialPosition" value="-1" />
     </group>
   </component>
